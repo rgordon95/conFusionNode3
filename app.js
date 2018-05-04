@@ -10,7 +10,8 @@ var session = require('express-session');
 var FileStore = require('session-file-store')(session);
 //for passport / local
 var passport = require('passport');
-var authenticate = require('./models/authenticate')
+var authenticate = require('./authenticate')
+var config = require('./config');
 
 //routes
 var indexRouter = require('./routes/index');
@@ -26,7 +27,7 @@ const Dishes = require('./models/dishes.js');
 const Promos = require('./models/promotions.js');
 const Leaders = require('./models/leaders.js')
 // Connection url
-const url = 'mongodb://localhost:27017/conFusion';
+const url = config.mongoUrl;
 const connect = mongoose.connect(url);
 
 connect.then((db) => {
@@ -45,6 +46,7 @@ app.use(bodyParser.urlencoded({
   extended: false
 }));
 // app.use(cookieParser('12345-43210-12345-43210')); //replaced by express-session
+/* //removed when switching from session module to jwtPassport
 app.use(session({
   name: 'session-id',
   secret: '12345-43210-12345-43210',
@@ -52,14 +54,16 @@ app.use(session({
   resave: false,
   store: new FileStore() //external module
 }));
-
+*/
 app.use(passport.initialize());
-app.use(passport.session());
+// app.use(passport.session()); //removed (session module swap for jwtPassport)
 
 //pages accessed without authentication
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
+/* //removed when adding in token auth system with jwtPassport module
+//this auth method uses the express-session module
 function auth(req, res, next) {
   //  console.log(req.headers);
   //  console.log(req.signedCookies);
@@ -70,11 +74,13 @@ function auth(req, res, next) {
     next(err);
     return;
   } else {
-      next();
+    next();
   }
 }
 
 app.use(auth);
+//end removed local auth method
+*/
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -84,12 +90,12 @@ app.use('/promotions', promoRouter);
 app.use('/leaders', leaderRouter);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};

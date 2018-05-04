@@ -43,7 +43,7 @@ app.use(bodyParser.urlencoded({
 }));
 // app.use(cookieParser('12345-43210-12345-43210')); //replaced by express-session
 app.use(session({
-  nameL 'session-id',
+  name: 'session-id',
   secret: '12345-43210-12345-43210',
   saveUnitialized: false,
   resave: false,
@@ -69,7 +69,7 @@ function auth(req, res, next) {
     var user = auth[0];
     var pass = auth[1];
     if (user == 'admin' && pass == 'password') {
-      res.session.user = 'admin';
+      req.session.user = 'admin';
       next(); // authorized
     } else {
       var err = new Error('You are not authenticated!');

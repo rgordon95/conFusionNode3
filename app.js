@@ -8,6 +8,9 @@ var bodyParser = require('body-parser');
 //replaced cookieParser
 var session = require('express-session');
 var FileStore = require('session-file-store')(session);
+//for passport / local
+var passport = require('passport');
+var authenticate = require('./models/authenticate')
 
 //routes
 var indexRouter = require('./routes/index');
@@ -49,6 +52,10 @@ app.use(session({
   resave: false,
   store: new FileStore() //external module
 }));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
 //pages accessed without authentication
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
@@ -56,20 +63,14 @@ app.use('/users', usersRouter);
 function auth(req, res, next) {
   //  console.log(req.headers);
   //  console.log(req.signedCookies);
-  console.log(req.session)
-  if (!req.session.user) { //session replaced cookies method when using express-session over cookieParser
+  console.log(req.user)
+  if (!req.user) { //session replaced cookies method when using express-session over cookieParser
     var err = new Error('You are not authenticated!');
     err.status = 403;
     next(err);
     return;
   } else {
-    if (req.session.user === 'authenticated') {
       next();
-    } else {
-      var err = new Error('You are not authenticated properly!');
-      err.status = 403;
-      return next(err);
-    }
   }
 }
 

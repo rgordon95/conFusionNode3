@@ -3,7 +3,11 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+//replace default express parser
 var bodyParser = require('body-parser');
+//repalced cookieParser
+var session = require('express-session');
+var FileStore = require('session-file-store')(session);
 
 //routes
 var indexRouter = require('./routes/index');
@@ -19,12 +23,12 @@ const Dishes = require('./models/dishes.js');
 const Promos = require('./models/promotions.js');
 const Leaders = require('./models/leaders.js')
 // Connection url
-  const url = 'mongodb://localhost:27017/conFusion';
-	const connect = mongoose.connect(url);
+const url = 'mongodb://localhost:27017/conFusion';
+const connect = mongoose.connect(url);
 
-	connect.then((db) => {
-		console.log("connected correctly to server");
-	});
+connect.then((db) => {
+  console.log("connected correctly to server");
+});
 
 var app = express();
 
@@ -33,31 +37,54 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
 app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({
+  extended: false
+}));
+// app.use(cookieParser('12345-43210-12345-43210')); //replaced by express-session
+app.use(session({
+  nameL 'session-id',
+  secret: '12345-43210-12345-43210',
+  saveUnitialized: false,
+  resave: false,
+  store: new FileStore() //external module
+}));
 
-function auth (req, res, next) {
-  console.log(req.headers);
-  var authHeader = req.headers.authorization;
-  if (!authHeader) {
+function auth(req, res, next) {
+//  console.log(req.headers);
+//  console.log(req.signedCookies);
+  console.log(req.session)
+  if (!req.session.user) { //session replaced cookies method when using express-session over cookieParser
+    var authHeader = req.headers.authorization;
+
+    if (!authHeader) {
       var err = new Error('You are not authenticated!');
       res.setHeader('WWW-Authenticate', 'Basic');
       err.status = 401;
       next(err);
       return;
-  }
+    }
 
-  var auth = new Buffer(authHeader.split(' ')[1], 'base64').toString().split(':');
-  var user = auth[0];
-  var pass = auth[1];
-  if (user == 'admin' && pass == 'password') {
+    var auth = new Buffer(authHeader.split(' ')[1], 'base64').toString().split(':');
+    var user = auth[0];
+    var pass = auth[1];
+    if (user == 'admin' && pass == 'password') {
+      res.session.user = 'admin';
       next(); // authorized
-  } else {
+    } else {
       var err = new Error('You are not authenticated!');
       res.setHeader('WWW-Authenticate', 'Basic');
       err.status = 401;
       next(err);
+    }
+  } else {
+    if (req.session.user === 'admin') {
+      next();
+    } else {
+      var err = new Error('You are not authenticated properly!');
+      err.status = 401;
+      next(err);
+    }
   }
 }
 
@@ -67,9 +94,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use('/dishes',dishRouter);
-app.use('/promotions',promoRouter);
-app.use('/leaders',leaderRouter);
+app.use('/dishes', dishRouter);
+app.use('/promotions', promoRouter);
+app.use('/leaders', leaderRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

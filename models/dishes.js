@@ -16,8 +16,8 @@ var commentSchema = new Schema({
     required: true
   },
   author: {
-    type: String,
-    required: true
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
   }
 }, {
   timestamps: true
@@ -32,31 +32,32 @@ var dishSchema = new Schema({
   description: {
     type: String,
     required: true
-	},
-    image: {
-        type: String,
-        required: true
-    },
-    category: {
-        type: String,
-        required: true
-    },
-    label: {
-        type: String,
-        default: ''
-    },
-    price: {
-        type: Currency,
-        required: true,
-        min: 0
-    },
-    featured: {
-        type: Boolean,
-        default:false
-    },
+  },
+  image: {
+    type: String,
+    required: true
+  },
+  category: {
+    type: String,
+    required: true
+  },
+  label: {
+    type: String,
+    default: ''
+  },
+  price: {
+    type: Currency,
+    required: true,
+    min: 0
+  },
+  featured: {
+    type: Boolean,
+    default: false
+  },
   comments: [commentSchema]
 }, {
-  timestamps: true
+  timestamps: true,
+  usePushEach: true
 });
 
 var Dishes = mongoose.model('Dish', dishSchema);

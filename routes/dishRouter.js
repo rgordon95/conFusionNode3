@@ -204,7 +204,6 @@ dishRouter.route('/:dishId/comments/:commentId')
           err.status = 400;
           return next(err);
         }
-
       }, (err) => next(err))
       .catch((err) => next(err));
   })

@@ -36,4 +36,36 @@ exports.jwtPassport = passport.use(new JwtStrategy(opts,
     });
   })); //end jwtPassport
 
+
 exports.verifyUser = passport.authenticate('jwt', { session: false });
+
+
+exports.verifyAdmin = function (req, res, next) {
+  if (req.user.admin) {
+    next();
+  } else {
+    var err = new Error('You are not authorized to perform this operation!');
+    err.statusCode = 403;
+    next(err);
+    return;
+  }
+}; //end verifyAdmin
+
+exports.sameUser = function (req, res, next) {
+  console.log(req.user);
+  console.log(req.user.id);
+  console.log(dish.comments);
+  console.log(dish.comments.id);
+  console.log(dish.comments._id);
+
+  console.log(dish.comments.author);
+
+  if (dish.comments.id(req.params.commentId).author.equals(req.user.id)) {
+    next();
+  } else {
+    let err = new Error("You can only modify or delete your own comments.")
+    err.statusCode = 403; //forbidden
+    next(err);
+    return;
+  }
+}; //end sameUser

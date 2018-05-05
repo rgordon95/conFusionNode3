@@ -15,7 +15,7 @@ var config = require('./config');
 
 //routes
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+var userRouter = require('./routes/users');
 var dishRouter = require('./routes/dishRouter');
 var promoRouter = require('./routes/promoRouter');
 var leaderRouter = require('./routes/leaderRouter');
@@ -60,7 +60,7 @@ app.use(passport.initialize());
 
 //pages accessed without authentication
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use('/users', userRouter);
 
 /* //removed when adding in token auth system with jwtPassport module
 //this auth method uses the express-session module

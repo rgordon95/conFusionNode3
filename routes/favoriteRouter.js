@@ -13,11 +13,26 @@ favoriteRouter.use(bodyParser.json());
 favoriteRouter.route('/')
   .options(cors.corsWithOptions, (req, res) => { res.sendStatus(200); })
   .get(cors.cors, authenticate.verifyUser, (req, res, next) => {
-    Favorites.findOne({ "user": req.user._id })
-      .populate('user') //populate user info
-      .populate('dishes') //populate dishes info
+    Favorites.findById(req.user)
+      .populate("user") //populate user info
+      .populate("dishes") //populate dishes info
       .then((favorites) => {
-        if (!favorite.params.id.equals(page.author)) {
+        //  console.log("Dishes:", Dishes);
+        //  console.log("Dish:", Dish);
+        //    console.log('favorite: ', favorite);
+        //    console.log('Favorite: ', Favorite);
+        console.log("Favorites.dishes:", Favorites.dishes);
+        console.log("Favorites.Dishes:", Favorites.Dishes);
+        console.log("Favorites.dish: ", Favorites.dish);
+        console.log('req params user:', req.params.user);
+        console.log("req.user: ", req.user);
+        console.log("Favorites.user: ", Favorites.user);
+        //  console.log("favorites.user: ", favorites.user);
+        // console.log('favorite.user:', favorite.user);
+        //  console.log('favorites.User:', favorites.User);
+        console.log('favorites: ', favorites);
+        console.log('Favorites: ', Favorites);
+        if (!req.user.equals(req.user)) {
           err = new Error('Permission denied. Are you correctly logged in?');
           err.status = 403; //forbidden
           return next(err);
@@ -55,7 +70,7 @@ favoriteRouter.route('/:dishId')
   .options(cors.corsWithOptions, (req, res) => { res.sendStatus(200); })
   .get(cors.cors, authenticate.verifyUser, (req, res, next) => {
     res.statusCode = 403;
-    res.end('GET operation not supported on /favorites/:disId');
+    res.end('GET operation not supported on /favorites/:dishId');
   })
   //create favorites document if it does not already exist still not done
   //also check using indexOf(dishes) etc. to see if dish already added

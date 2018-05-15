@@ -1,27 +1,20 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-require('mongoose-currency').loadType(mongoose);
-var Currency = mongoose.Types.Currency;
-
-var faveDishSchema = new Schema({
-  dish: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Dishes"
-  }
-});
+const passportLocalMongoose = require('passport-local-mongoose');
 
 var favoriteSchema = new Schema({
   user: {
+    required: true,
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
+    ref: "User"
   },
-  dishes: [faveDishSchema]
-}, {
-  timestamps: true,
-  usePushEach: true
+
+  dishes: ({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Dish"
+  })
 });
 
-var Favorites = mongoose.model('Favorite', favoriteSchema);
-// var FavoriteDish = mongoose.model('FaveDish', faveDishSchema);
+var Favorites = mongoose.model('Favorites', favoriteSchema);
 
 module.exports = Favorites;
